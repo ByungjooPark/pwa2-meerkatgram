@@ -4,8 +4,8 @@
 | **프로젝트명**     | meerketgram                                                |
 | **설명**        | 사용자들이 게시글과 댓글로 소통하는 커뮤니티형 웹앱                             |
 | **핵심 기능**     | 회원가입/로그인(JWT), 소셜 로그인, 권한(Role) 기반 접근, 사진 업로드, PWA 푸시 알림 |
-| **사용 기술**     | Vite + React 19 (프론트) / Express 7 (백엔드) / MySQL 8.4 (DB) |
-| **추가 기능(선택)** | 모바일 카메라 업로드, 지문 인증(WebAuthn)                             |
+| **사용 기술**     | Vite + React 19 (프론트) / Express 5 (백엔드) / MySQL 8.4 (DB) |
+| **SRD**     | [SRS_meertagram.xlsx](https://github.com/user-attachments/files/23586389/SRS_meertagram.xlsx) |
 
 <br>
 
@@ -46,6 +46,17 @@ meerkatgram/
 │   └── .env                # 환경 변수 설정 파일
 └── READEME.md
 ````
+
+<br>
+
+# 프로젝트 디자인
+<img width="1273" height="1221" alt="Image" src="https://github.com/user-attachments/assets/36813f6a-a155-4ffe-a341-8f4413fa4520" />
+
+<br>
+
+# ERD
+<img width="1773" height="982" alt="Image" src="https://github.com/user-attachments/assets/4ae34858-7936-415a-9081-d7b3435343d3" />
+
 <br>
 
 # 설치 라이브러리
@@ -62,76 +73,3 @@ npm init
 npm i express express-validator morgan winston dotenv sequelize sequelize-cli mysql2 cookie-parser jsonwebtoken cors multer swagger-ui-express yaml dayjs bcrypt web-push
 npm install -D nodemon
 ````
-
-# DB 테이블 설계안
-### users (회원 정보)
-| 컬럼명           | 타입                              | 설명          |
-| ------------- | ------------------------------- | ----------- |
-| id            | BIGINT PK AUTO_INCREMENT        | 사용자 ID      |
-| email         | VARCHAR(100) UNIQUE             | 이메일(로그인용)   |
-| password      | VARCHAR(255)                    | 비밀번호(해시 저장) |
-| nick          | VARCHAR(20) UNIQUE                    | 닉네임         |
-| provider      | VARCHAR(10)                     | 로그인 제공자(local, google, kakao 등)     |
-| role          | VARCHAR(10)                     | 권한(user, admin 등)          |
-| profile | VARCHAR(100)                    | 프로필 이미지 경로  |
-| refresh_token | VARCHAR(255)                    | 프로필 이미지 경로  |
-| created_at    | DATETIME                        | 가입일         |
-| updated_at    | DATETIME                        | 수정일         |
-| deleted_at    | DATETIME                        | 삭제일         |
-
-### posts (게시글)
-| 컬럼명        | 타입                   | 설명         |
-| ---------- | -------------------- | ---------- |
-| id         | BIGINT PK AUTO_INCREMENT         | 게시글 ID     |
-| user_id    | BIGINT FK(users.id)  | 작성자 ID     |
-| title      | VARCHAR(200)         | 제목         |
-| content    | VARCHAR(1000)                 | 본문         |
-| image  | VARCHAR(100)         | 업로드 이미지 경로 |
-| created_at    | DATETIME                        | 가입일         |
-| updated_at    | DATETIME                        | 수정일         |
-| deleted_at    | DATETIME                        | 삭제일         |
-
-### comments (댓글)
-| 컬럼명        | 타입                  | 설명         |
-| ---------- | ------------------- | ---------- |
-| id         | BIGINT PK AUTO_INCREMENT        | 댓글 ID      |
-| post_id    | BIGINT FK(posts.id) | 댓글이 달린 게시글 |
-| user_id    | BIGINT FK(users.id) | 작성자        |
-| content    | VARCHAR(1000)                | 댓글 내용      |
-| created_at    | DATETIME                        | 가입일         |
-| updated_at    | DATETIME                        | 수정일         |
-| deleted_at    | DATETIME                        | 삭제일         |
-
-### likes (좋아요)
-| 컬럼명        | 타입                  | 설명         |
-| ---------- | ------------------- | ---------- |
-| id         | BIGINT PK AUTO_INCREMENT        | 좋아요 ID     |
-| post_id    | BIGINT FK(posts.id) | 좋아요 대상 게시글 |
-| user_id    | BIGINT FK(users.id) | 누른 사용자     |
-| created_at    | DATETIME                        | 가입일         |
-| updated_at    | DATETIME                        | 수정일         |
-| deleted_at    | DATETIME                        | 삭제일         |
-
-### notifications (PWA 푸시용)
-| 컬럼명        | 타입                   | 설명     |
-| ---------- | -------------------- | ------ |
-| id         | BIGINT PK AUTO_INCREMENT         | 알림 ID  |
-| user_id    | BIGINT FK(users.id)  | 알림 대상자 |
-| title      | VARCHAR(200)         | 알림 제목  |
-| message    | VARCHAR(2000)                 | 알림 내용  |
-| is_read    | TINYINT(1) DEFAULT 0 | 읽음 여부  |
-| created_at    | DATETIME                        | 가입일         |
-| updated_at    | DATETIME                        | 수정일         |
-| deleted_at    | DATETIME                        | 삭제일         |
-
-### push_subscriptions (댓글 푸시 정보)
-| 컬럼명        | 타입                  | 설명                |
-| ---------- | ------------------- | ----------------- |
-| id         | BIGINT PK AUTO_INCREMENT        | 구독 ID             |
-| user_id    | BIGINT FK(users.id) | 유저                |
-| endpoint   | VARCHAR(255)                | Push API endpoint |
-| p256dh     | VARCHAR(255)                | 공개키               |
-| auth       | VARCHAR(255)                | 인증키               |
-| created_at    | DATETIME                        | 가입일         |
-| updated_at    | DATETIME                        | 수정일         |
-| deleted_at    | DATETIME                        | 삭제일         |
