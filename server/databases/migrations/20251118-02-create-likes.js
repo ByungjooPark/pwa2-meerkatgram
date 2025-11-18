@@ -1,13 +1,13 @@
 /**
- * @file databases/migrations/20251117-01-create-users.js
- * @description users migration file
- * 251117 v1.0.0 park init
+ * @file databases/migrations/20251118-01-create-likes.js
+ * @description likes migration file
+ * 251118 v1.0.0 park init
  */
 
 import { DataTypes } from 'sequelize';
 
 // 테이블명
-const tableName = 'posts';
+const tableName = 'likes';
 
 // 컬럼 정의
 const attributes = {
@@ -17,7 +17,19 @@ const attributes = {
     primaryKey: true,
     allowNull: false,
     autoIncrement: true,
+    comment: '좋아요 PK',
+  },
+  userId: {
+    field: 'user_id',
+    type: DataTypes.BIGINT.UNSIGNED,
+    allowNull: false,
     comment: '유저 PK',
+  },
+  postId: {
+    field: 'post_id',
+    type: DataTypes.BIGINT.UNSIGNED,
+    allowNull: false,
+    comment: '게시글 PK',
   },
   createdAt: {
     field: 'created_at',
@@ -39,7 +51,7 @@ const attributes = {
 // 옵션 설정
 const options = {
   charset: 'utf8mb4',       // 테이블 문자셋 설정(이모지 지원)
-  collate: 'utf8mb4_bin',   // 정렬 방식 설정 (영어 대소문자 구분 정렬)
+  collate: 'utf8mb4_0900_ai_ci',   // 정렬 방식 설정 (기본 설정)
   engine: 'InnoDB'          // 사용 엔진 설정
 };
 
