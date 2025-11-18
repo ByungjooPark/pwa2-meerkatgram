@@ -5,7 +5,7 @@
 | **설명**        | 사용자들이 게시글과 댓글로 소통하는 커뮤니티형 웹앱                             |
 | **핵심 기능**     | 회원가입/로그인(JWT), 소셜 로그인, 권한(Role) 기반 접근, 사진 업로드, PWA 푸시 알림 |
 | **사용 기술**     | Vite + React 19 (프론트) / Express 5 (백엔드) / MySQL 8.4 (DB) |
-| **SRD**     | [SRS_meertagram.xlsx](https://github.com/user-attachments/files/23586389/SRS_meertagram.xlsx) |
+| **SRS**     | [SRS_meertagram.xlsx](https://github.com/user-attachments/files/23586389/SRS_meertagram.xlsx) |
 
 <br>
 
