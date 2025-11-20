@@ -96,7 +96,7 @@ const Notification = {
     return define;
   },
   associate: (db) => {
-    db.Notification.belongsTo(db.User, { targetKey: 'id', foreignKey: 'user_id', as: 'author' });
+    db.Notification.belongsTo(db.User, { targetKey: 'id', foreignKey: 'userId', as: 'author' });
   },
 };
 
