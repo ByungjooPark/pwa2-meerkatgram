@@ -104,7 +104,7 @@ const options = {
   tableName: 'users', // 실제 DB 테이블명
   timestamps: true,   // createdAt, updatedAt를 자동 관리
   paranoid: true,     // soft delete 설정 (deletedAt 자동 관리)
-}
+};
 
 const User = {
   init: (sequelize) => {
@@ -122,8 +122,12 @@ const User = {
     return define;
   },
   associate: (db) => {
-
+    db.User.hasMany(db.Post, { sourceKey: 'id', foreignKey: 'user_id', as: 'posts' });
+    db.User.hasMany(db.Like, { sourceKey: 'id', foreignKey: 'user_id', as: 'likes' });
+    db.User.hasMany(db.Comment, { sourceKey: 'id', foreignKey: 'user_id', as: 'comments' });
+    db.User.hasMany(db.PushSubscription, { sourceKey: 'id', foreignKey: 'user_id', as: 'pushSubscriptions' });
+    db.User.hasMany(db.Notification, { sourceKey: 'id', foreignKey: 'user_id', as: 'notifications' });
   },
-}
+};
 
 export default User;
