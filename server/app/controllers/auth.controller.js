@@ -24,10 +24,10 @@ async function login(req, res, next) {
     
     // 로그인 서비스 호출
     const result = await authService.login(body);
-  
+
     return res.status(SUCCESS.status).send(createBaseResponse(SUCCESS, result));
   } catch(error) {
-    return res.status(500).send(error.message);
+    next(error);
   }
 }
 
