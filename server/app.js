@@ -9,9 +9,8 @@ import './configs/env.config.js';
 import authRouter from './routes/auth.router.js';
 import errorHandler from './app/errors/errorHandler.js';
 import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
+import SwaggerParser from 'swagger-parser';
 import path from 'path';
-import yaml from 'yaml';
 
 const app = express();
 app.use(express.json()); // JSON 요청 파싱 처리
@@ -19,8 +18,8 @@ app.use(express.json()); // JSON 요청 파싱 처리
 // --------------------
 // swagger 등록
 // --------------------
-app.use('/swagger', express.static(path.join(path.resolve(), 'swagger'))); // schemas statics file serve
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(yaml.parse(fs.readFileSync('./swagger/swagger.yaml', 'utf8')))); // swagger ui
+const swaggerDoc = await SwaggerParser.bundle(path.join(path.resolve(), 'swagger/swagger.yaml')); // swagger yaml bundle
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc)); // swagger ui
 
 // --------------------
 // 라우터 정의

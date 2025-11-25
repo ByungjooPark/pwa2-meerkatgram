@@ -2,265 +2,72 @@ openapi: 3.0.0
 info:
   title: meerkatgram
   version: '1.0.0'
-#########################################################################
-# components 정의
-#########################################################################
-components:
-  schemas:
-    NOT_REGISTERED_ERROR:
-      $ref: '/swagger/schemas/errors/NotRegistered.yaml'
-    UNAUTHORIZED_ERROR:
-      $ref: '/swagger/schemas/errors/Unauthorized.yaml'
-    FORBIDDEN_ERROR:
-      $ref: '/swagger/schemas/errors/Forbidden.yaml'
-    EXPIRED_TOKEN_ERROR:
-      $ref: '/swagger/schemas/errors/ExpiredToken.yaml'
-    INVALID_TOKEN_ERROR:
-      $ref: '/swagger/schemas/errors/InvalidToken.yaml'
-    CONFLICT_ERROR:
-      $ref: '/swagger/schemas/errors/Conflict.yaml'
-    UNMATCHING_USER_ERROR:
-      $ref: '/swagger/schemas/errors/UnmatchingUser.yaml'
-    REISSUE_ERROR:
-      $ref: '/swagger/schemas/errors/Reissue.yaml'
-    NOT_FOUND_ERROR:
-      $ref: '/swagger/schemas/errors/NotFound.yaml'
-    BAD_REQUEST_ERROR:
-      $ref: '/swagger/schemas/errors/BadRequest.yaml'
-    BAD_FILE_ERROR:
-      $ref: '/swagger/schemas/errors/BadFile.yaml'
-    DB_ERROR:
-      $ref: '/swagger/schemas/errors/Db.yaml'
-    SYSTEM_ERROR:
-      $ref: '/swagger/schemas/errors/System.yaml'
-#########################################################################
-# 로그인
-#########################################################################
+  description: |
+    에러 코드 표
+    | Name                  | status | code | info                      |
+    | --------------------- | ------ | ---- | ------------------------- |
+    | SUCCESS               | 200    | 00   | 정상 처리                     |
+    | NOT_REGISTERED_ERROR  | 400    | E01  | 아이디나 비밀번호가 틀렸습니다.         |
+    | UNAUTHORIZED_ERROR    | 401    | E02  | 로그인이 필요한 서비스입니다.          |
+    | FORBIDDEN_ERROR       | 403    | E03  | 권한이 부족하여 제공할 수 없는 서비스입니다. |
+    | EXPIRED_TOKEN_ERROR   | 401    | E05  | 만료된 토큰입니다.                |
+    | INVALID_TOKEN_ERROR   | 401    | E06  | 유효한 토큰이 아닙니다.             |
+    | CONFLICT_ERROR        | 409    | E07  | 이미 가입 된 회원입니다.            |
+    | UNMATCHING_USER_ERROR | 403    | E08  | 로그인한 유저로는 수행할 수 없는 작업입니다. |
+    | REISSUE_ERROR         | 401    | E09  | 재발급 불가능합니다.               |
+    | NOT_FOUND_ERROR       | 404    | E20  | 제공되지 않는 서비스입니다.           |
+    | BAD_REQUEST_ERROR     | 400    | E21  | 요청 파라미터에 이상이 있습니다.        |
+    | BAD_FILE_ERROR        | 400    | E22  | 파일은 필수(10MB이하)입니다.        |
+    | DB_ERROR              | 500    | E80  | 서비스 제공 상태가 원활하지 않습니다.     |
+    | SYSTEM_ERROR          | 500    | E99  | 서비스 제공 상태가 원활하지 않습니다.     |
+
+
 paths:
+  #########################################################################
+  # Auth 정의
+  #########################################################################
   /api/auth/login:
     post:
-      tags:
-        - 인증
-      summary: 로그인
-      description: 회원의 로그인 처리후 JWT 및 회원정보 반환
-      operationId: '1'
-      requestBody:
-        description: 회원 로그인 정보
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  description: 회원 아이디
-                  type: string
-                  example: admin@admin.com
-                password:
-                  description: 비밀번호
-                  type: string
-                  example: qwe123!@
-      responses:
-        '200':
-          description: 로그인 성공
-          headers:
-            Set-Cookie:
-              schema:
-                description: 리프래시 토큰
-                type: string
-                example: eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJqd3QifQ.eyJpZHQiOjEsImlhdCI6MTcxNjI4MzU4OCwiZXhwIjoxNzE2MjgzNTk4LCJ0dGwiOjEwLCJhY2MiOiJhZG1pbiIsIm5hbWUiOiJcdWFkMDBcdWI5YWNcdWM3OTAifQ.b5cc09dc802022423854516199923c8e9e80749733f55199fce9a3deb0e4965d52pYrRS
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    description: 코드
-                    type: string
-                    example: '0'
-                  msg:
-                    description: 메세지
-                    type: string
-                    example: 인증 완료
-                  data:
-                    properties:
-                      accessToken:
-                        description: 엑세스 토큰
-                        type: string
-                        example: eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJqd3QifQ.eyJpZHQiOjEsImlhdCI6MTcxNjI4MzU4OCwiZXhwIjoxNzE2MjgzNTk4LCJ0dGwiOjEwLCJhY2MiOiJhZG1pbiIsIm5hbWUiOiJcdWFkMDBcdWI5YWNcdWM3OTAifQ.b5cc09dc802022423854516199923c8e9e80749733f55199fce9a3deb0e4965d52pYrRS
-                      user:
-                        description: 회원정보
-                        type: object
-                        properties:
-                          id:
-                            description: PK
-                            type: integer
-                            example: 1
-                          email:
-                            description: 이메일
-                            type: string
-                            example: admin@admin.com
-                          nick:
-                            description: 닉네임
-                            type: string
-                            example: Kanna_kamui
-                          role:
-                            description: 권한
-                            type: string
-                            example: NOMAL
-                          profile:
-                            description: 프로필 사진
-                            type: string
-                            example: http://localhost:3000/file/profile/we4h6se547h5dgb5yagb.png
-                          created_at:
-                            description: 가입일자
-                            type: string
-                            format: date-time
-                            example: 2024-05-20 15:02:52
-                          updated_at:
-                            description: 수정일자
-                            type: string
-                            format: date-time
-                            example: 2024-05-21 18:26:28
-                          deleted_at:
-                            description: 탈퇴일자
-                            type: string
-                            nullable: true
-                            example: null
-                          posts_count:
-                            description: 작성글 수
-                            type: integer
-                            example: 50
-        '400':
-          description: 유효성 검사 에러
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BAD_REQUEST_ERROR'
-        '401':
-          description: 미가입 회원 또는 비밀번호 이상
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NOT_REGISTERED_ERROR'
-        '500':
-          description: DB 에러 및 시스템 에러
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/DB_ERROR'
-                  - $ref: '#/components/schemas/SYSTEM_ERROR'
-                discriminator:
-                  propertyName: code
-                  mapping:
-                    'E80': '#/components/schemas/DB_ERROR'
-                    'E90': '#/components/schemas/SYSTEM_ERROR'
-#########################################################################
-# 토큰 재발급
-#########################################################################
+      $ref: './schemas/data/auth/login.yaml'
   /api/auth/reissue:
     post:
-      tags:
-        - 인증
-      summary: 토큰 재발급
-      description: 리프래시 토큰으로 엑세스 토큰 재발급 처리
-      operationId: '2'
-      parameters:
-        - name: refresh-token 
-          in: cookie
-          description: 리프래시 토큰 쿠키
-          required: true
-          schema:
-            type: string
-            example: eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJqd3QifQ.eyJpZHQiOjEsImlhdCI6MTcxNjI4MzU4OCwiZXhwIjoxNzE2MjgzNTk4LCJ0dGwiOjEwLCJhY2MiOiJhZG1pbiIsIm5hbWUiOiJcdWFkMDBcdWI5YWNcdWM3OTAifQ.b5cc09dc802022423854516199923c8e9e80749733f55199fce9a3deb0e4965d52pYrRS
-      responses:
-        '200':
-          description: 토큰 재발급
-          headers:
-            Set-Cookie:
-              schema:
-                description: 리프래시 토큰
-                type: string
-                example: eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJqd3QifQ.eyJpZHQiOjEsImlhdCI6MTcxNjI4MzU4OCwiZXhwIjoxNzE2MjgzNTk4LCJ0dGwiOjEwLCJhY2MiOiJhZG1pbiIsIm5hbWUiOiJcdWFkMDBcdWI5YWNcdWM3OTAifQ.b5cc09dc802022423854516199923c8e9e80749733f55199fce9a3deb0e4965d52pYrRS
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    description: 코드
-                    type: string
-                    example: '0'
-                  msg:
-                    description: 메세지
-                    type: string
-                    example: 인증 완료
-                  data:
-                    properties:
-                      accessToken:
-                        description: 엑세스 토큰
-                        type: string
-                        example: eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJqd3QifQ.eyJpZHQiOjEsImlhdCI6MTcxNjI4MzU4OCwiZXhwIjoxNzE2MjgzNTk4LCJ0dGwiOjEwLCJhY2MiOiJhZG1pbiIsIm5hbWUiOiJcdWFkMDBcdWI5YWNcdWM3OTAifQ.b5cc09dc802022423854516199923c8e9e80749733f55199fce9a3deb0e4965d52pYrRS
-                      user:
-                        description: 회원정보
-                        type: object
-                        properties:
-                          id:
-                            description: PK
-                            type: integer
-                            example: 1
-                          email:
-                            description: 이메일
-                            type: string
-                            example: admin@admin.com
-                          nick:
-                            description: 닉네임
-                            type: string
-                            example: Kanna_kamui
-                          role:
-                            description: 권한
-                            type: string
-                            example: NOMAL
-                          profile:
-                            description: 프로필 사진
-                            type: string
-                            example: http://localhost:3000/file/profile/we4h6se547h5dgb5yagb.png
-                          created_at:
-                            description: 가입일자
-                            type: string
-                            format: date-time
-                            example: 2024-05-20 15:02:52
-                          updated_at:
-                            description: 수정일자
-                            type: string
-                            format: date-time
-                            example: 2024-05-21 18:26:28
-                          deleted_at:
-                            description: 탈퇴일자
-                            type: string
-                            nullable: true
-                            example: null
-                          posts_count:
-                            description: 작성글 수
-                            type: integer
-                            example: 50
-        '401':
-          description: 재발급 에러
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/REISSUE_ERROR'
-        '500':
-          description: DB 에러 및 시스템 에러
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/DB_ERROR'
-                  - $ref: '#/components/schemas/SYSTEM_ERROR'
-                discriminator:
-                  propertyName: code
-                  mapping:
-                    'E80': '#/components/schemas/DB_ERROR'
-                    'E90': '#/components/schemas/SYSTEM_ERROR'
+      $ref: './schemas/data/auth/reissue.yaml'
+  #########################################################################
+  # Posts 정의
+  #########################################################################
+  /api/posts:
+    get:
+      $ref: './schemas/data/posts/index.yaml'
+    post:
+      $ref: './schemas/data/posts/store.yaml'
+  /api/posts/{id}:
+    get:
+      $ref: './schemas/data/posts/show.yaml'
+    delete:
+      $ref: './schemas/data/posts/destroy.yaml'
+  #########################################################################
+  # File Upload 정의
+  #########################################################################
+  /api/files/posts:
+    post:
+      $ref: './schemas/data/files/post.yaml'
+  /api/files/profiles:
+    post:
+      $ref: './schemas/data/files/profile.yaml'
+  #########################################################################
+  # Comments 정의
+  #########################################################################
+  /api/comments/{id}/{commentId}:
+    get:
+      $ref: './schemas/data/comments/index.yaml'
+  /api/comments:
+    post:
+      $ref: './schemas/data/comments/store.yaml'
+  #########################################################################
+  # Users 정의
+  #########################################################################
+  /api/users:
+    post:
+      $ref: './schemas/data/users/store.yaml'
+    put:
+      $ref: './schemas/data/users/update.yaml'
