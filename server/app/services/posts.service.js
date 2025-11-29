@@ -4,39 +4,19 @@
  * 251128 park init
  */
 
+import myError from '../errors/customs/my.error.js';
 import postRepository from "../repositories/post.repository.js";
 import db from '../models/index.js';
 import commentRepository from "../repositories/comment.repository.js";
 import likeRepository from "../repositories/like.repository.js";
-
-// -----------------------
-// Types
-// -----------------------
-/**
- * 페잊 타입
- * @typedef {number} Page
- */
-
-/**
- * 게시글 ID 타입
- * @typedef {number} Id
- */
-
-/**
- * 게시글 작성 타입
- * @typedef {object} PostStoreData
- * @property {number} userId
- * @property {string} content
- * @property {string} image
- */
-
+import { UNMATCHING_USER_ERROR } from '../../configs/responseCode.config.js';
 
 // -----------------------
 // Public
 // -----------------------
 /**
  * 게시글 페이지네이션(최상위 댓글 포함)
- * @param {Page} page - 페이지 번호
+ * @param {import("./posts.service.type.js").page} page - 페이지 번호
  * @returns {Promise<Array<import("../models/Post.js").Post>>}
  */
 async function pagination(page) {
@@ -48,16 +28,16 @@ async function pagination(page) {
 
 /**
  * 게시글 상세
- * @param {Id} id 
+ * @param {import("./posts.service.type.js").Id} id 
  * @returns {Promise<import("../models/Post.js").Post>}
  */
 async function show(id) {
-  return await postRepository.findByPk(null, id);
+  return await postRepository.findByPkWithComments(null, id);
 }
 
 /**
  * 게시글 작성
- * @param {PostStoreData} data
+ * @param {import("./posts.service.type.js").PostStoreData} data
  * @returns {Promise<import("../models/Post.js").Post>}
  */
 async function create(data) {
@@ -66,20 +46,28 @@ async function create(data) {
 
 /**
  * 게시글 삭제
- * @param {Id} id 
+ * @param {import("./posts.service.type.js").PostDestroyData} data 
  * @returns {Promise<number>}
  */
-async function destroy(id) {
+async function destroy({ userId, postId }) {
   // 트랜잭션 시작
   return db.sequelize.transaction(async t => {
+    // (게시글 작성자 일치 확인용)
+    const post = await postRepository.findByPk(t, postId);
+
+    // 게시글 작성자 일치 확인
+    if(post.userId !== userId) {
+      throw myError('작성자 불일치', UNMATCHING_USER_ERROR);
+    }
+
     // 코멘트 삭제
-    await commentRepository.destroy(t, id);
+    await commentRepository.destroy(t, postId);
 
     // 좋아요 삭제
-    await likeRepository.destroy(t, id);
+    await likeRepository.destroy(t, postId);
     
     // 게시글 삭제
-    await postRepository.destroy(t, id);
+    await postRepository.destroy(t, postId);
   });
   
 }

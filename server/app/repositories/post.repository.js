@@ -33,10 +33,10 @@ async function pagination(t = null, data) {
 /**
  * 게시글 ID로 조회(최상위 댓글 포함)
  * @param {import("sequelize").Transaction|null} t 
- * @param {import("../middlewares/validations/validators/posts/show.validator.type.js").PostShowParams} id 
+ * @param {import("../services/posts.service.type.js").Id} id 
  * @returns {Promise<import("../models/Post.js").Post>}
  */
-async function findByPk(t = null, id) {
+async function findByPkWithComments(t = null, id) {
   return await Post.findByPk(
     id,
     {
@@ -56,9 +56,24 @@ async function findByPk(t = null, id) {
 }
 
 /**
+ * 게시글 ID로 조회(최상위 댓글 포함)
+ * @param {import("sequelize").Transaction|null} t 
+ * @param {import("../services/posts.service.type.js").Id} id 
+ * @returns {Promise<import("../models/Post.js").Post>}
+ */
+async function findByPk(t = null, id) {
+  return await Post.findByPk(
+    id,
+    {
+      transaction: t
+    }
+  );
+}
+
+/**
  * 게시글 작성
  * @param {import("sequelize").Transaction|null} t 
- * @param {import("../services/posts.service.js").PostStoreData} data 
+ * @param {import("../services/posts.service.type.js").PostStoreData} data 
  * @returns {Promise<import("../models/Post.js").Post>}
  */
 async function create(t = null, data) {
@@ -68,7 +83,7 @@ async function create(t = null, data) {
 /**
  * 게시글 삭제
  * @param {import("sequelize").Transaction|null} t 
- * @param {import("../middlewares/validations/validators/posts/show.validator.type.js").PostShowParams} id 
+ * @param {import("../services/posts.service.type.js").Id} id 
  * @returns {Promise<number>}
  */
 async function destroy(t = null, id) {
@@ -83,6 +98,7 @@ async function destroy(t = null, id) {
 export default {
   pagination,
   findByPk,
+  findByPkWithComments,
   create,
   destroy
 }
