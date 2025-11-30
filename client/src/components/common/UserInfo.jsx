@@ -1,19 +1,37 @@
+import { useNavigate } from 'react-router-dom';
 import './UserInfo.css';
+import { useSelector } from 'react-redux';
 
 export default function UserInfo() {
+  const navigate = useNavigate();
+  const { user } = useSelector(state => state.auth);
+
+  function redirectCreate() {
+    navigate('/posts/create');
+  }
+  
+  function redirectUserInfo() {
+    console.log(user);
+    navigate(`/users/${user.id}`);
+  }
+  
+  function redirectPosts() {
+    navigate('/posts');
+  }
+
   return (
     <>
       <div className="user-info-container bottom-line">
-        <div className="profile profile-medium" style={{backgroundImage: `url("http://localhost:5173/dev/kanna.jpg")`}}></div>
+        <div className="profile profile-medium" style={{backgroundImage: `url("${user.profile}")`}}></div>
         <div className="user-info-controll-box">
           <div className="user-info-stat-items">
-            <p className='user-info-stat-name'>Kanna_kamui</p>
+            <p className='user-info-stat-name'>{user.nick}</p>
             <p className='user-info-stat-etc'>posts 1911</p>
           </div>
           <div className="user-info-btn-items">
-            <div className="user-info-btn" style={{backgroundImage: `url("http://localhost:5173/icons/btn-post-index.png")`}}></div>
-            <div className="user-info-btn" style={{backgroundImage: `url("http://localhost:5173/icons/btn-add.png")`}}></div>
-            <div className="user-info-btn" style={{backgroundImage: `url("http://localhost:5173/icons/btn-user-index.png")`}}></div>
+            <div className="user-info-btn" onClick={redirectPosts} style={{backgroundImage: `url("http://localhost:5173/icons/btn-post-index.png")`}}></div>
+            <div className="user-info-btn" onClick={redirectCreate} style={{backgroundImage: `url("http://localhost:5173/icons/btn-add.png")`}}></div>
+            <div className="user-info-btn" onClick={redirectUserInfo} style={{backgroundImage: `url("http://localhost:5173/icons/btn-user-index.png")`}}></div>
           </div>
         </div>
       </div>

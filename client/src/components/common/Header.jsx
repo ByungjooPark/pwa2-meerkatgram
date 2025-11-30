@@ -1,27 +1,48 @@
 import './Header.css';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import UserInfo from './UserInfo.jsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearAuth } from '../../store/slices/authSlice.js';
 
 export default function Header() {
+  const { isLoggedIn } = useSelector(state => state.auth);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const onlyTitleList = ['/login', '/registration'];
   const onlyTitleFlg = onlyTitleList.some(path => path === location.pathname);
-  const authFlg = !onlyTitleFlg && true;
+
+  function redirectLogin() {
+    navigate('/login');
+  }
+  
+  function redirectRegistration() {
+    navigate('/registration');
+  }
+  
+  function redirectPosts() {
+    navigate('/posts');
+  }
+
+  function logout() {
+    dispatch(clearAuth());
+    navigate('/posts');
+  }
 
   return (
     <>
       <div className="header-container">
         <div className={`${(onlyTitleFlg && 'header-top') || 'bottom-line header-top-grid'}`}>
-          <h1 className={`${(onlyTitleFlg && 'header-top-title-only') || ''}`}>Meerkagram</h1>
+          <h1 className={`${(onlyTitleFlg && 'header-top-title-only') || ''}`} onClick={redirectPosts}>Meerkagram</h1>
           {
             !onlyTitleFlg && (
               <div className='header-top-btn-box'>
                 {
-                  (authFlg && <button type="button" className='btn-small bg-dark'>Logout</button>)
+                  (isLoggedIn && <button type="button" className='btn-small bg-dark' onClick={logout}>Logout</button>)
                   ||
                   <>
-                    <button type="button" className='btn-small bg-gray'>Sign In</button>
-                    <button type="button" className='btn-small bg-light'>Sign Up</button>
+                    <button type="button" className='btn-small bg-gray' onClick={redirectLogin}>Sign In</button>
+                    <button type="button" className='btn-small bg-light' onClick={redirectRegistration}>Sign Up</button>
                   </>
                 }
               </div>
@@ -29,7 +50,7 @@ export default function Header() {
           }
         </div>
         {
-          authFlg && <UserInfo />
+          isLoggedIn && <UserInfo />
         }
       </div>
     </>

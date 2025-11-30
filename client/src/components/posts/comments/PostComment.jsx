@@ -1,9 +1,10 @@
 import './PostComment.css';
 
-import comments from '../../../../dev/data/postShow.js';
+// import comments from '../../../../dev/data/postShow.js';
 import PostCommentCreate from './PostCommentCreate.jsx';
 import PostCommentItem from './PostCommentItem.jsx';
-export default function PostComment() {
+export default function PostComment({id, comments}) {
+  
   return (
     <>
       {/* <button type="button" onClick={test}>test</button> */}
@@ -11,7 +12,7 @@ export default function PostComment() {
         <p className='post-comment-title'>Comments</p>
 
         {/* prop으로 postId를 전달하여 어떤 게시물에 대한 댓글인지 식별 */}
-        <PostCommentCreate postId={11} />
+        <PostCommentCreate postId={id} />
         <div className="post-comment-item-container">
           {
             // 'comments' 배열의 각 댓글 객체를 PostCommentItem 컴포넌트로 변환
