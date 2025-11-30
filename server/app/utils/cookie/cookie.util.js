@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 // private
 // ----------------
 /**
- * 
+ * 쿠키 셋팅
  * @param {import("express").Response} res 
  * @param {string} cookieName 
  * @param {string} cookieValue 
@@ -29,6 +29,22 @@ function setCookie(res, cookieName, cookieValue, ttl, httpOnlyFlg = true, secure
       sameSite: 'none',
     }
   );
+}
+
+/**
+ * 쿠키 획득
+ * @param {Request} request 
+ * @param {string} cookieName 
+ * @returns {string|''} tokenValue
+ */
+function getCookie(request, cookieName) {
+    let cookieValue = '';
+    
+    if(request.cookies) {
+        cookieValue = request.cookies[cookieName];
+    }
+
+    return cookieValue;
 }
 
 // ----------------
@@ -50,6 +66,16 @@ function setCookieRefreshToken(res, refreshToken) {
   );
 }
 
+/**
+ * 리프래시 토큰 쿠키 획득
+ * @param {Request} request 
+ * @returns 
+ */
+function getCookieRefreshToken(request) {
+  return getCookie(request, process.env.JWT_REFRESH_TOKEN_COOKIE_NAME);
+}
+
 export default {
   setCookieRefreshToken,
+  getCookieRefreshToken,
 }
