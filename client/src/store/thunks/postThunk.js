@@ -31,3 +31,38 @@ export const showThunk = createAsyncThunk(
     }
   }
 );
+
+export const uploadFileThunk = createAsyncThunk(
+  'post/uploadFileThunk', // Thunk 고유명
+  async(file, {rejectWithValue}) => {
+    try {
+      const url = `/api/files/posts`;
+      const headers = {
+        'Content-Type': 'multipart/form-data'
+      }
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await axios.post(url, formData, { headers });
+  
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const storeThunk = createAsyncThunk(
+  'post/storeThunk', // Thunk 고유명
+  async(data, {rejectWithValue}) => {
+    try {
+      const url = `/api/posts`;
+      
+      const response = await axios.post(url, data);
+  
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
