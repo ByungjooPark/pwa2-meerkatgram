@@ -16,7 +16,7 @@ export default function Login() {
     const result = await dispatch(loginThunk({email, password}));
     
     if(result.type.endsWith('/fulfilled')) {
-      return navigate('/posts');
+      return navigate('/posts', { replace: true });
     }
     return;
   }

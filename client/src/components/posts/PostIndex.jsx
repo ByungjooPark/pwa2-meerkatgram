@@ -21,7 +21,7 @@ export default function PostIndex() {
   }
 
   function redirectPostShow(id) {
-    navigate(`/posts/${id}`);
+    navigate(`/posts/show/${id}`);
   }
   return (
     <>

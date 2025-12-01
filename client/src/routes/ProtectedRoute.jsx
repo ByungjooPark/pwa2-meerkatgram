@@ -59,7 +59,7 @@ export default function ProtectedRoute() {
   } else {
     // 요청에 맞는 권한 규칙 조회
     const matchRole = AUTH_REQUIRED_ROUTES.find(item => item.path.test(location.pathname));
-  
+
     // 일치하는 규칙이 있을 시, 인증 및 권한 체크를 실시
     if(matchRole && !isJustLoggedOut) {
       // 인증 체크
@@ -69,7 +69,7 @@ export default function ProtectedRoute() {
           return <Outlet />;
         } else {
           alert('권한이 부족하여 접근할 수 없습니다.');
-          return <Navigate to="/posts" replace />;
+          return <Navigate to={location.state?.from} replace />;
         }
       } else {
         alert('로그인이 필요한 서비스 입니다.');

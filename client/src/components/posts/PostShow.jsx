@@ -5,6 +5,7 @@ import PostDelete from './PostDelete.jsx';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { showThunk } from '../../store/thunks/postThunk.js';
+import { clearPostShow } from '../../store/slices/postShowSlice.js';
 
 export default function PostsShow() {
   const { id } = useParams();
@@ -15,6 +16,10 @@ export default function PostsShow() {
 
   useEffect(() => {
     dispatch(showThunk(id));
+
+    return () => {
+      dispatch(clearPostShow());
+    }
   }, []);
 
   function openDeleteModal() {

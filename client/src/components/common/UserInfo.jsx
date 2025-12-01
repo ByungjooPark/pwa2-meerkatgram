@@ -1,13 +1,14 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './UserInfo.css';
 import { useSelector } from 'react-redux';
 
 export default function UserInfo() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector(state => state.auth);
 
   function redirectCreate() {
-    navigate('/posts/create');
+    navigate('/posts/create', { state: { from: location.pathname } });
   }
   
   function redirectUserInfo() {

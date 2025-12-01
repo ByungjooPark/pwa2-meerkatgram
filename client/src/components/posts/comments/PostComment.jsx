@@ -16,7 +16,7 @@ export default function PostComment({id, comments}) {
         <div className="post-comment-item-container">
           {
             // 'comments' 배열의 각 댓글 객체를 PostCommentItem 컴포넌트로 변환
-            (comments.length > 0 && (comments.map(comment => {
+            ((comments && comments.length > 0) && (comments.map(comment => {
               return (
                 <PostCommentItem comment={comment} key={comment.id} />
               )
