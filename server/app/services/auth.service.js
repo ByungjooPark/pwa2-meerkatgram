@@ -95,7 +95,7 @@ async function socialKakao(code) {
   
   // 토큰 획득
   const resultToken = await axios.post(process.env.SOCIAL_KAKAO_API_URL_TOKEN, tokenRequest.searchParams, { headers: tokenRequest.headers });
-  const { access_token, refresh_token } = resultToken.data;
+  const { access_token } = resultToken.data;
 
   // 유저정보 획득
   const userRequest = socialUtil.getKakaoUserRequest(access_token);
@@ -106,7 +106,7 @@ async function socialKakao(code) {
   const profile = resultUser.data.kakao_account.profile.thumbnail_image_url;
   const nick = resultUser.data.kakao_account.profile.nickname;
 
-  return db.sequelize.transaction(async t => {
+  const refreshToken = db.sequelize.transaction(async t => {
     // 회원 체크
     let user = await userRepository.findByEmail(t, email);
   
@@ -138,6 +138,12 @@ async function socialKakao(code) {
 
     return refreshToken;
   });
+
+  // 카카오 로그아웃 처리
+  const logoutRequest = socialUtil.getKakaoLogoutRequest(kakaoId, access_token);
+  const resultLogout = await axios.post(process.env.SOCIAL_KAKAO_API_URL_LOGOUT, logoutRequest.searchParams, { headers: logoutRequest.headers });
+  console.log(resultLogout);
+  return refreshToken;
 }
 
 export default {
