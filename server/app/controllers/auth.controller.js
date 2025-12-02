@@ -6,9 +6,11 @@
 
 import { REISSUE_ERROR, SUCCESS } from "../../configs/responseCode.config.js";
 import myError from "../errors/customs/my.error.js";
+import PROVIDER from "../middlewares/auth/configs/provider.enum.js";
 import authService from "../services/auth.service.js";
 import cookieUtil from "../utils/cookie/cookie.util.js";
 import { createBaseResponse } from "../utils/createBaseResponse.util.js";
+import socialUtil from "../utils/social/social.util.js";
 
 // ----------------
 // ---- public ----
@@ -66,10 +68,51 @@ async function reissue(request, response, next) {
   }
 }
 
+async function social(req, res, next) {
+  try {
+    const provider = req.params.provider.toUpperCase();
+    let url = '';
+
+    switch (provider) {
+      case PROVIDER.KAKAO:
+        url = socialUtil.getKakaoAuthorizeURL();
+        break;
+    }
+
+    return res.redirect(url);
+  } catch(error) {
+    return next(error);
+  }
+}
+
+async function socialCallback(req, res, next) {
+  try {
+    const provider = req.params.provider.toUpperCase();
+    const code = req.query?.code;
+    let refreshToken = null;
+
+    switch (provider) {
+      case PROVIDER.KAKAO:
+        refreshToken = await authService.socialKakao(code);
+        break;
+    }
+    
+    // Cookie에 RefreshToken 설정
+    cookieUtil.setCookieRefreshToken(res, refreshToken);
+
+    return res.redirect(`${process.env.SOCIAL_CLIENT_CALLBACK_URL}`);
+    // return res.redirect(`${process.env.APP_URL}${process.env.SOCIAL_CLIENT_CALLBACK_URL}`);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 // --------------
 // export
 // --------------
 export default {
   login,
-  reissue
+  reissue,
+  social,
+  socialCallback,
 };

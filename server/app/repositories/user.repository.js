@@ -45,9 +45,19 @@ async function findByPk(t = null, id) {
   return await User.findByPk(id, { transaction: t });
 }
 
+/**
+ * 유저 작성
+ * @param {import("sequelize").Transaction|null} t 
+ * @param {import("../services/auth.service.type.js").UserDestroyData} data 
+ * @returns {Promise<import("../models/Post.js").User>}
+ */
+async function create(t = null, data) {
+  return await User.create(data);
+}
 
 export default {
   findByEmail,
   save,
   findByPk,
+  create,
 }
