@@ -1,4 +1,6 @@
 import axios from "axios";
+import { jwtDecode } from 'jwt-decode';
+import dayjs from 'dayjs';
 import { reissueThunk } from "../store/thunks/authThunk.js";
 
 let store = null; // store 저장용
@@ -16,41 +18,31 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  const state = store.getState().auth;
-  if (state.accessToken) {
-    config.headers["Authorization"] = `Bearer ${state.accessToken}`;
-  }
-  return config;
-});
+axiosInstance.interceptors.request.use(async (config) => {
+  const noRetry = /^\/api\/auth\/reissue$/;// 리트라이 제외 URL 설정
+  let { accessToken } = store.getState().auth; // auth state 획득
 
-axiosInstance.interceptors.response.use(
-  res => res,
-  async (error) => {
-    const originalRequest = error.config;
-    const noRetryList = [
-      '/api/auth/reissue',
-      '/api/auth/login'
-    ];
+  try {
+    // 엑세스 토큰 있음 && 리트라이 제외 URL 아님
+    if(accessToken && !noRetry.test(config.url)) {
+      // 엑세스 토큰 만료 확인
+      const claims = jwtDecode(accessToken);
+      const now = dayjs().unix();
+      const expTime = dayjs.unix(claims.exp).add(-5, 'minute').unix();
 
-    if (error.response?.status === 401 && !originalRequest._retry && !noRetryList.includes(originalRequest.url)) {
-      originalRequest._retry = true;
-      try {
+      if(now >= expTime) {
         const response = await store.dispatch(reissueThunk()).unwrap();
-
-        if(response.data.accessToken) {
-          originalRequest.headers["Authorization"] = `Bearer ${response.data.accessToken}`;
-          return axiosInstance(originalRequest);
-        } else {
-          throw new Error('재발급 실패');
-        }
-      } catch(error) {
-        return Promise.reject(error); 
+        accessToken = response.data.accessToken;
       }
-    }
 
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+  
+    return config;
+  } catch(error) {
+    console.log('axios interceptor', error);
     return Promise.reject(error);
   }
-);
+});
 
 export default axiosInstance;

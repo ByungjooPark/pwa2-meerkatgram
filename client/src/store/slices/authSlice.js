@@ -19,6 +19,9 @@ const authSlice = createSlice({
       state.isLoggedIn = true;
       state.isJustLoggedOut = false;
     },
+    setIsJustLoggedOut(state, action) {
+      state.isJustLoggedOut = action.payload;
+    },
     clearAuth(state) {
       state.accessToken = null;
       state.user = null;
@@ -66,6 +69,7 @@ const authSlice = createSlice({
 
 export const {
   clearAuth,
+  setIsJustLoggedOut,
 } = authSlice.actions;
 
 export default authSlice.reducer;

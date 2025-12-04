@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { reissueThunk } from "../store/thunks/authThunk.js";
 import { useEffect, useState } from "react";
+import { setIsJustLoggedOut } from "../store/slices/authSlice.js";
 
 const ROLE = {
   ADMIN: 'ADMIN',
@@ -13,7 +14,7 @@ const { ADMIN, NORMAL, SUPER } = ROLE;
 // 인증 및 인가가 필요한 라우트만 정의
 const AUTH_REQUIRED_ROUTES = [
   { path: /^\/users\/[0-9]+$/, roles: [NORMAL, SUPER] },
-  { path: /^\/posts\/[0-9]+$/, roles: [NORMAL, SUPER] },
+  { path: /^\/posts\/show\/[0-9]+$/, roles: [NORMAL, SUPER] },
   { path: /^\/posts\/create$/, roles: [NORMAL, SUPER] },
 ];
 
@@ -76,6 +77,9 @@ export default function ProtectedRoute() {
         return <Navigate to="/login" replace />;
       }
     }
+
+    // 일치하는 규칙이 있었으나, 로그아웃 처리중이라 건너뛴 경우 isJustLoggedOut false로 갱신
+    dispatch(setIsJustLoggedOut(false));
   }
 
   return <Outlet />;

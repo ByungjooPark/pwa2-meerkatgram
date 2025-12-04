@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import UserInfo from './UserInfo.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearAuth } from '../../store/slices/authSlice.js';
+import { logoutThunk } from '../../store/thunks/authThunk.js';
 
 export default function Header() {
   const { isLoggedIn } = useSelector(state => state.auth);
@@ -24,7 +25,8 @@ export default function Header() {
     navigate('/posts');
   }
 
-  function logout() {
+  async function logout() {
+    await dispatch(logoutThunk());
     dispatch(clearAuth());
     navigate('/posts');
   }

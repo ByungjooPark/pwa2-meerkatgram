@@ -31,11 +31,7 @@ function setCookie(res, cookieName, cookieValue, ttl, httpOnlyFlg = true, secure
     options.path = path;
   }
 
-  res.cookie(
-    cookieName,
-    cookieValue,
-    options
-  );
+  res.cookie(cookieName, cookieValue, options);
 }
 
 /**
@@ -52,6 +48,28 @@ function getCookie(request, cookieName) {
     }
 
     return cookieValue;
+}
+
+/**
+ * 쿠키 제거
+ * @param {import("express").Response} res
+ * @param {string} cookieName
+ * @param {boolean} httpOnlyFlg
+ * @param {boolean} secureFlg
+ * @param {string|null} path
+ */
+function clearCookie(res, cookieName, httpOnlyFlg = true, secureFlg = false, path = null) {
+  const options = {
+    httpOnly: httpOnlyFlg,
+    secure: secureFlg,
+    sameSite: 'none',
+  };
+
+  if(path) {
+    options.path = path;
+  }
+
+  res.clearCookie(cookieName, options);
 }
 
 // ----------------
@@ -83,7 +101,22 @@ function getCookieRefreshToken(request) {
   return getCookie(request, process.env.JWT_REFRESH_TOKEN_COOKIE_NAME);
 }
 
+/**
+ * 쿠키에 리프래시 토큰 제거
+ * @param {import("express").Response} res
+ */
+function clearCookieRefreshToken(res) {
+  clearCookie(
+    res,
+    process.env.JWT_REFRESH_TOKEN_COOKIE_NAME,
+    true,
+    true,
+    process.env.JWT_REISS_URI
+  );
+}
+
 export default {
   setCookieRefreshToken,
   getCookieRefreshToken,
+  clearCookieRefreshToken
 }

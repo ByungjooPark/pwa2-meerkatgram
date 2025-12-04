@@ -31,3 +31,19 @@ export const reissueThunk = createAsyncThunk(
     }
   }
 );
+
+
+export const logoutThunk = createAsyncThunk(
+  'auth/logoutThunk', // Thunk 고유명
+  async(_, {rejectWithValue}) => {
+    try {
+      const url = '/api/auth/logout';
+  
+      const response = await axios.post(url);
+  
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);

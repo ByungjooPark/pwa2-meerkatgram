@@ -59,6 +59,12 @@ async function login(body) {
   });
 }
 
+async function logout(id) {
+  return await db.sequelize.transaction(async t => {
+    return await userRepository.logout(t, id);
+  });
+}
+
 
 async function reissue(token) {
   // 유저 id 획득
@@ -148,6 +154,7 @@ async function socialKakao(code) {
 
 export default {
   login,
+  logout,
   reissue,
   socialKakao,
 }
