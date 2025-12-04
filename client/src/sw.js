@@ -1,6 +1,9 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import { NetworkFirst, CacheFirst } from 'workbox-strategies';
+
+const PREFIX = 'meerkatgram';
+const VERSION = 'v1.0.4';
 
 // -------------------------
 // 정적 파일 캐싱
@@ -13,7 +16,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 registerRoute(
   ({ request }) => request.mode === 'navigate',
   new NetworkFirst({
-    cacheName: 'html-cache',
+    cacheName: `${PREFIX}-html-cache-${VERSION}`,
     networkTimeoutSeconds: 3,
   })
 );
@@ -24,7 +27,7 @@ registerRoute(
 registerRoute(
   ({ url, request }) => url.origin === 'http://localhost:3000' && request.method === 'GET',
   new NetworkFirst({
-    cacheName: 'api-cache',
+    cacheName: `${PREFIX}-api-cache-${VERSION}`,
     networkTimeoutSeconds: 3,
   })
 );
@@ -35,19 +38,41 @@ registerRoute(
 registerRoute(
   ({ request }) => request.destination === 'image',
   new CacheFirst({
-    cacheName: 'image-cache',
+    cacheName: `${PREFIX}-image-cache-${VERSION}`,
   })
 );
 
 // -------------------------------------------
 // 웹푸시 핸들러
 // -------------------------------------------
-self.addEventListener('push', event => {
-  const data = event.data.json();
+self.addEventListener('push', e => {
+  const data = e.data.json();
   console.log('푸시 수신:', data);
 
   self.registration.showNotification(data.title, {
     body: data.message,
     icon: '/icons/meerkat_32.png'
   });
+});
+
+self.addEventListener("install", () => {
+  console.log("SW installing...");
+});
+
+self.addEventListener("activate", (e) => {
+  console.log("SW activating...");
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys
+          .filter((key) => key.startsWith(PREFIX) && !key.includes(VERSION))
+          .map((key) => {
+            console.log("Deleting old cache:", key);
+            return caches.delete(key);
+          })
+      );
+    })
+  );
+
+  self.clients.claim(); // 모든 페이지 즉시 제어
 });

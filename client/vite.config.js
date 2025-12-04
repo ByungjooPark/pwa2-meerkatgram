@@ -12,17 +12,18 @@ export default defineConfig({
       srcDir: 'src', // 커스텀 서비스워커 디렉토리
       filename: 'sw.js', // 사용자가 직접 작성한 서비스워커
       includeAssets: [ // 로컬 경로의 이미지 참조
-        '/icons/btn-add.png',
-        '/icons/btn-delete.png',
-        '/icons/btn-post-index.png',
-        '/icons/btn-user-index.png',
-        '/icons/heart-empty.png',
-        '/icons/heart-fill.png',
-        '/icons/kakao.png',
-        '/icons/meerkat_32.png',
-        '/icons/meerkat_180.png',
-        '/icons/meerkat_192.png',
-        '/icons/meerkat_512.png'
+        // '/icons/btn-add.png',
+        // '/icons/btn-delete.png',
+        // '/icons/btn-post-index.png',
+        // '/icons/btn-user-index.png',
+        // '/icons/heart-empty.png',
+        // '/icons/heart-fill.png',
+        // '/icons/kakao.png',
+        // '/icons/meerkat_32.png',
+        // '/icons/meerkat_180.png',
+        // '/icons/meerkat_192.png',
+        // '/icons/meerkat_512.png'
+        '/icons/*'
       ],
       manifest: {
         name: 'meerkatgram',  // PWA 애플리케이션의 이름 (설치 배너에 표시)
