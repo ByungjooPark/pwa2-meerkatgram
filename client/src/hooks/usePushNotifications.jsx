@@ -7,27 +7,23 @@ export default function usePushNotifications() {
   // 유저가 권한 거부를 한 경우, 코드상으로는 재설정 불가능
   // 크롬의 경우 `chrome://settings/content/notifications`로 접속하여 직접 허용 설정 필요
   const [isPermission, setIsPermission] = useState(Notification?.permission === 'granted');
+  const [permission, setPermission] = useState(Notification?.permission);
   const [isCheckedSubscribe, setIsCheckedSubscribe] = useState(false);
 
   // 권한 요청
   async function requestPermission() {
-    let subscriptionFlg = false;
+    let subscription = permission;
 
     try {
       if('Notification' in window) {
         // Notification 지원하는 경우
-        if(Notification.permission !== 'granted') {
+        if(permission !== 'granted') {
           // 허용이 아닌경우 처리
           const result = await Notification.requestPermission();
+          subscription = result;
           if(result === 'denied') {
             alert('알림을 거부하신 이력이 있습니다.\n알림 허용을 하지 않으면 서비스 이용에 제한이 있습니다.');
           }
-
-          // 유저가 권한 거부를 한 경우, 코드상으로는 재설정 불가능하므로 "denied"과 "granted"는 true로 취급
-          subscriptionFlg = result !== 'default';
-        } else {
-          // 이미 허용인 경우
-          subscriptionFlg = true;
         }
       } else {
         // Notification 지원하지 않는 경우
@@ -38,8 +34,7 @@ export default function usePushNotifications() {
     }
 
     // 권한 플래그 저장
-    setIsPermission(subscriptionFlg);
-    return subscriptionFlg;
+    setPermission(subscription);
   }
 
   // 구독 등록
@@ -52,8 +47,10 @@ export default function usePushNotifications() {
       const subscribing = await registration.pushManager.getSubscription();
 
       if(!subscribing) {
+        await requestPermission();
+
         // 권한 확인 및 승인 요청
-        if(!await requestPermission()) {
+        if(permission !== 'granted') {
           return;
         }
 
@@ -91,6 +88,7 @@ export default function usePushNotifications() {
 
   return {
     isPermission,
+    permission,
     isCheckedSubscribe,
     subscribeUser,
   }
