@@ -16,18 +16,25 @@ import dayjs from "dayjs";
  * @param {string} cookieValue 
  * @param {number} ttl 
  * @param {boolean} httpOnlyFlg 
- * @param {boolean} secureFlg 
+ * @param {boolean} secureFlg
+ * @param {string|null} path
  */
-function setCookie(res, cookieName, cookieValue, ttl, httpOnlyFlg = true, secureFlg = false) {
+function setCookie(res, cookieName, cookieValue, ttl, httpOnlyFlg = true, secureFlg = false, path = null) {
+  const options = {
+    expires: dayjs().add(ttl, 'second').toDate(),
+    httpOnly: httpOnlyFlg,
+    secure: secureFlg,
+    sameSite: 'none',
+  };
+
+  if(path) {
+    options.path = path;
+  }
+
   res.cookie(
     cookieName,
     cookieValue,
-    {
-      expires: dayjs().add(ttl, 'second').toDate(),
-      httpOnly: httpOnlyFlg,
-      secure: secureFlg,
-      sameSite: 'none',
-    }
+    options
   );
 }
 
@@ -62,7 +69,8 @@ function setCookieRefreshToken(res, refreshToken) {
     refreshToken,
     parseInt(process.env.JWT_REFRESH_TOKEN_COOKIE_EXPIRY),
     true,
-    true
+    true,
+    process.env.JWT_REISS_URI
   );
 }
 
