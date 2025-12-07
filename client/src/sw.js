@@ -1,9 +1,8 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkFirst, CacheFirst } from 'workbox-strategies';
+import { NetworkFirst } from 'workbox-strategies';
 
 const PREFIX = 'meerkatgram';
-const VERSION = 'v1.0.5';
 
 // -------------------------
 // 정적 파일 캐싱
@@ -16,7 +15,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 registerRoute(
   ({ request }) => request.mode === 'navigate',
   new NetworkFirst({
-    cacheName: `${PREFIX}-html-cache-${VERSION}`,
+    cacheName: `${PREFIX}-html-cache`,
     networkTimeoutSeconds: 3,
   })
 );
@@ -27,7 +26,7 @@ registerRoute(
 registerRoute(
   ({ url, request }) => url.origin === 'http://localhost:3000' && request.method === 'GET',
   new NetworkFirst({
-    cacheName: `${PREFIX}-api-cache-${VERSION}`,
+    cacheName: `${PREFIX}-api-cache`,
     networkTimeoutSeconds: 3,
   })
 );
@@ -37,8 +36,8 @@ registerRoute(
 // -------------------------------------------
 registerRoute(
   ({ request }) => request.destination === 'image',
-  new CacheFirst({
-    cacheName: `${PREFIX}-image-cache-${VERSION}`,
+  new NetworkFirst({
+    cacheName: `${PREFIX}-image-cache`,
   })
 );
 
@@ -81,30 +80,4 @@ self.addEventListener('notificationclick', function(event) {
       }
     })
   );
-});
-
-
-// -------------------------------------------
-// sw 생명주기 핸들러
-// -------------------------------------------
-self.addEventListener("install", () => {
-  console.log("SW installing...");
-});
-
-self.addEventListener("activate", (e) => {
-  console.log("SW activating...");
-  e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key.startsWith(PREFIX) && !key.includes(VERSION))
-          .map((key) => {
-            console.log("Deleting old cache:", key);
-            return caches.delete(key);
-          })
-      );
-    })
-  );
-
-  self.clients.claim(); // 모든 페이지 즉시 제어
 });

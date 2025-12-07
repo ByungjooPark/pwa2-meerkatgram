@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance.js";
 
 export default function usePushNotifications() {
@@ -6,53 +6,74 @@ export default function usePushNotifications() {
   // NotificationPermission: "default" | "denied" | "granted"
   // 유저가 권한 거부를 한 경우, 코드상으로는 재설정 불가능
   // 크롬의 경우 `chrome://settings/content/notifications`로 접속하여 직접 허용 설정 필요
-  const [isPermission, setIsPermission] = useState(Notification?.permission === 'granted');
-  const [permission, setPermission] = useState(Notification?.permission);
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const [isCheckedSubscribe, setIsCheckedSubscribe] = useState(false);
+
+  useEffect(() => {
+    // usePushNotifications 초기화
+    async function init() {
+      try {
+        // 서비스 워커 준비
+        const registration = await navigator.serviceWorker.ready;
+        
+        // 등록 중인 구독 정보 획득
+        const subscribing = await registration.pushManager.getSubscription();
+        if(subscribing) {
+          setIsSubscribing(true);
+        }
+        console.log('usePushNotifications init', subscribing);
+        
+      } catch(error) {
+        console.log(error);
+      }
+    }
+    init();
+  }, []);
 
   // 권한 요청
   async function requestPermission() {
-    let subscription = permission;
-
     try {
       if('Notification' in window) {
         // Notification 지원하는 경우
-        if(permission !== 'granted') {
+        if(Notification?.permission === 'default') {
           // 허용이 아닌경우 처리
           const result = await Notification.requestPermission();
-          subscription = result;
-          if(result === 'denied') {
-            alert('알림을 거부하신 이력이 있습니다.\n알림 허용을 하지 않으면 서비스 이용에 제한이 있습니다.');
+          
+          if(result !== 'granted') {
+            alert('알림 허용을 하지 않으면 서비스 이용에 제한이 있습니다.');
+            return false;
+          } else {
+            return true;
           }
+        } else if(Notification?.permission === 'denied') {
+            alert('알림을 거부하신 이력이 있습니다.\n알림 허용을 하지 않으면 서비스 이용에 제한이 있습니다.');
+            return false;
+        } else {
+          return true;
         }
       } else {
         // Notification 지원하지 않는 경우
         alert('알림을 지원하지 않는 브라우저입니다.');
+        return false;
       }
     } catch(error) {
       console.error(error);
+      throw error;
     }
-
-    // 권한 플래그 저장
-    setPermission(subscription);
   }
 
   // 구독 등록
   async function subscribeUser() {
     try {
-      // 서비스 워커 준비
-      const registration = await navigator.serviceWorker.ready;
-      
-      // 등록 중인 구독 정보 획득
-      const subscribing = await registration.pushManager.getSubscription();
+      if(!isSubscribing) {
+        const isGranted = await requestPermission();
 
-      if(!subscribing) {
-        await requestPermission();
-
-        // 권한 확인 및 승인 요청
-        if(permission !== 'granted') {
+        // 권한 확인
+        if(!isGranted) {
           return;
         }
+        // 서비스 워커 준비
+        const registration = await navigator.serviceWorker.ready;
 
         // 서비스 워커에 구독 정보 등록
         const subscription = await registration.pushManager.subscribe({
@@ -87,8 +108,7 @@ export default function usePushNotifications() {
   }
 
   return {
-    isPermission,
-    permission,
+    isSubscribing,
     isCheckedSubscribe,
     subscribeUser,
   }
