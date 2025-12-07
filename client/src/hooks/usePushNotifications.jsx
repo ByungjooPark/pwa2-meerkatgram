@@ -7,6 +7,7 @@ export default function usePushNotifications() {
   // 유저가 권한 거부를 한 경우, 코드상으로는 재설정 불가능
   // 크롬의 경우 `chrome://settings/content/notifications`로 접속하여 직접 허용 설정 필요
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isInit, setIsInit] = useState(false);
   const [isCheckedSubscribe, setIsCheckedSubscribe] = useState(false);
 
   useEffect(() => {
@@ -25,6 +26,8 @@ export default function usePushNotifications() {
         
       } catch(error) {
         console.log(error);
+      } finally {
+        setIsInit(true);
       }
     }
     init();
@@ -98,6 +101,7 @@ export default function usePushNotifications() {
         
         // Backend에 구독 정보 등록 요청
         await axiosInstance.post('/api/subscriptions', {subscription, deviceInfo});
+        
         alert('구독 성공');
       }
     } catch(error) {
@@ -108,6 +112,7 @@ export default function usePushNotifications() {
   }
 
   return {
+    isInit,
     isSubscribing,
     isCheckedSubscribe,
     subscribeUser,

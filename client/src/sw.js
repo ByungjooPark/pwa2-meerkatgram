@@ -1,6 +1,6 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkFirst } from 'workbox-strategies';
+import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 
 const PREFIX = 'meerkatgram';
 
@@ -36,7 +36,7 @@ registerRoute(
 // -------------------------------------------
 registerRoute(
   ({ request }) => request.destination === 'image',
-  new NetworkFirst({
+  new StaleWhileRevalidate({
     cacheName: `${PREFIX}-image-cache`,
   })
 );
@@ -52,7 +52,7 @@ self.addEventListener('push', e => {
     body: data.message,
     icon: '/icons/meerkat_32.png',
     data: {
-      postId: data.data.postId
+      targetUrl: data.data.targetUrl
     }
   });
 });
@@ -60,22 +60,40 @@ self.addEventListener('push', e => {
 // -------------------------------------------
 // 웹푸시 클릭 이벤트
 // -------------------------------------------
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
+self.addEventListener('notificationclick', function(e) {
+  e.notification.close();
 
-  const urlToOpen = new URL(`/posts/show/${event.notification.data.postId}`, self.location.origin);
-  event.waitUntil(
+  // 페이로드에서 백엔드가 전달해 준 전체 URL을 추출
+  const urlToOpen = e.notification.data.targetUrl;
+
+  // Origin 획득
+  const origin = self.location.origin;
+
+  e.waitUntil(
+    // clients의 구조
+    // [
+    //   WindowClient = {
+    //     focused: false,
+    //     frameType: "top-level",
+    //     id: "f6e4c645-16ba-4ebe-9600-443b91141742",
+    //     type: "window",
+    //     url: "http://localhost:3000/posts",
+    //     visibilityState: "visible"
+    //   },
+    //   // ...
+    // ]
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      // 앱의 루트 도메인 탭이 있는지 확인
+      const focusClient = clients.find(client => client.url.startsWith(origin));
 
-      // 이미 열려있는 탭이 있다면 그 탭을 포커스
-      for (const client of clients) {
-        if (client.url === urlToOpen && 'focus' in client) {
-          client.navigate(urlToOpen);
-          return client.focus();
-        }
+      // 재활용할 탭을 찾았다면 포커스 및 내비게이션
+      if(focusClient) {
+        focusClient.focus();
+        return focusClient.navigate(urlToOpen);
       }
-      // 없으면 새 창 열기
-      if (self.clients.openWindow) {
+
+      // 재활용할 탭이 없다면 새 창 열기
+      if(self.clients.openWindow) {
         return self.clients.openWindow(urlToOpen);
       }
     })

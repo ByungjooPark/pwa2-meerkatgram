@@ -3,13 +3,13 @@ import usePushNotifications from "../../hooks/usePushNotifications.jsx";
 import { useSelector } from 'react-redux';
 
 export default function NotificationInfo() {
-  const { isSubscribing, isCheckedSubscribe, subscribeUser } = usePushNotifications();
+  const { isInit, isSubscribing, isCheckedSubscribe, subscribeUser } = usePushNotifications();
   const { isLoggedIn } = useSelector(state => state.auth);
 
   return (
     <>
       {
-        ( isLoggedIn  && !isSubscribing && !isCheckedSubscribe) && (
+        ( isLoggedIn && isInit && !isSubscribing && !isCheckedSubscribe) && (
           <div className="notification-info-container">
             <div className="notification-info-content-box bg-light">
               <div className="notification-info-content-info">

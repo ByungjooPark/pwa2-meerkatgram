@@ -25,7 +25,7 @@ async function store(data) {
         title: `새로운 댓글`,
         message: `${user.nick}님께서 당신의 게시글에 댓글을 작성하셨습니다.`,
         data: {
-          postId: data.postId
+          targetUrl: `${process.env.APP_URL}${process.env.WEB_PUSH_POSTS_SHOW_FRONT_URL}/${data.postId}`
         }
       }
     );
