@@ -25,7 +25,7 @@ registerRoute(
 // --------------------------
 registerRoute(
   ({request}) => request.destination === 'image',
-  new CacheFirst({
+  new StaleWhileRevalidate({
     cacheName: `${PREFIX}-image-cache`,
     networkTimeoutSeconds: 3
   })
@@ -41,3 +41,65 @@ registerRoute(
     networkTimeoutSeconds: 3
   })
 );
+
+// --------------------------
+// 웹푸시 핸들러
+// --------------------------
+self.addEventListener('push', e => {
+  const data = e.data.json();
+
+  self.registration.showNotification(
+    data.title,
+    {
+      body: data.message,
+      icon: '/icons/meerkat_32.png',
+      data: {
+        targetUrl: data.data.targetUrl
+      }
+    }
+  );
+});
+
+// --------------------------
+// 웹푸시 클릭 이벤트
+// --------------------------
+self.addEventListener('notificationclick', e => {
+  e.notification.close(); // 푸시 알림 창 닫기
+
+  // 페이로드에서 백앤드가 전달해 준 전체 URL 추출
+  const openUrl = e.notification.data.targetUrl;
+
+  // Origin 획득
+  const origin = self.location.origin;
+
+  e.waitUntil(
+    // clients의 구조
+    // [
+    //   WindowClient = {
+    //     focused: false,
+    //     frameType: "top-level",
+    //     id: "f6e4c645-16ba-4ebe-9600-443b91141742",
+    //     type: "window",
+    //     url: "http://localhost:3000/posts",
+    //     visibilityState: "visible"
+    //   },
+    //   // ...
+    // ]
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then(clients => {
+      // 앱에서 루트 도메인 탭이 있는지 확인
+      const myClient = clients.find(client => client.url.startsWith(origin));
+
+      // 재활용할 탭이 있다면 포커스 및 네비게이트처리
+      if(myClient) {
+        myClient.focus();
+        return myClient.navigate(openUrl);
+      }
+
+      // 재활용할 탭이 없다면 새창으로 열기
+      if(self.clients.openWindow) {
+        return self.clients.openWindow(openUrl);
+      }
+    })
+  );
+});
