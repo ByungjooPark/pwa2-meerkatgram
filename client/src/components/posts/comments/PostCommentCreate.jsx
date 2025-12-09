@@ -21,7 +21,7 @@ export default function PostCommentCreate({postId, replyId = 0}) {
     <>
       <form className="post-comment-create-box" onSubmit={handleCommentStore}>
         <input type="text" className="post-comment-create-input-add" onChange={(e) => { setContent(e.target.value) }} placeholder={`add comments...`} />
-        <div onClick={storeComment} className="post-comment-create-btn-add" style={{backgroundImage: `url("http://localhost:5173/icons/btn-add.png")`}}></div>
+        <div onClick={storeComment} className="post-comment-create-btn-add" style={{backgroundImage: `url("/icons/btn-add.png")`}}></div>
       </form>
     </>
   )

@@ -27,9 +27,9 @@ export default function UserInfo() {
             <p className='user-info-stat-etc'>posts 1911</p>
           </div>
           <div className="user-info-btn-items">
-            <div className="user-info-btn" onClick={redirectPosts} style={{backgroundImage: `url("http://localhost:5173/icons/btn-post-index.png")`}}></div>
-            <div className="user-info-btn" onClick={redirectPostCreate} style={{backgroundImage: `url("http://localhost:5173/icons/btn-add.png")`}}></div>
-            <div className="user-info-btn" onClick={redirectUserInfo} style={{backgroundImage: `url("http://localhost:5173/icons/btn-user-index.png")`}}></div>
+            <div className="user-info-btn" onClick={redirectPosts} style={{backgroundImage: `url("/icons/btn-post-index.png")`}}></div>
+            <div className="user-info-btn" onClick={redirectPostCreate} style={{backgroundImage: `url("/icons/btn-add.png")`}}></div>
+            <div className="user-info-btn" onClick={redirectUserInfo} style={{backgroundImage: `url("/icons/btn-user-index.png")`}}></div>
           </div>
         </div>
       </div>
